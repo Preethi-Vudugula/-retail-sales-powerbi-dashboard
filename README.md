@@ -151,7 +151,7 @@ retail-powerbi-dashboard/
 
 **Preethi**  
 Aspiring Data Analyst | Power BI · SQL · Excel  
-📧 [your email] · 🔗 [LinkedIn URL] · 🌐 [Portfolio URL]
+📧 [Preethigoud039@gmail.com] · 🔗 [https://www.linkedin.com/in/preethi-vudugula-92a650290/] · 🌐 [Portfolio URL]
 
 ---
 
