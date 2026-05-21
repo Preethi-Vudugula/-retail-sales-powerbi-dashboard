@@ -1,0 +1,160 @@
+-- ============================================================
+-- RETAIL SALES DASHBOARD — DAX MEASURES
+-- Author: Preethi
+-- Tool: Power BI Desktop
+-- Description: All custom measures used in the report
+-- ============================================================
+
+
+-- ─────────────────────────────────────────
+-- 1. REVENUE MEASURES
+-- ─────────────────────────────────────────
+
+-- Total Revenue after applying discount
+Total Revenue = 
+SUMX(
+    Sales,
+    Sales[Quantity] * Sales[Sale Price] * (1 - Sales[Discount %])
+)
+
+-- Gross Revenue (before discount)
+Gross Revenue = 
+SUMX(Sales, Sales[Quantity] * Sales[Sale Price])
+
+-- Revenue Lost to Discounts
+Discount Revenue Loss = 
+[Gross Revenue] - [Total Revenue]
+
+-- Average Sale Price
+Avg Sale Price = 
+AVERAGE(Sales[Sale Price])
+
+
+-- ─────────────────────────────────────────
+-- 2. PROFIT MEASURES
+-- ─────────────────────────────────────────
+
+-- Gross Profit (Revenue minus Purchase Cost)
+Gross Profit = 
+SUMX(
+    Sales,
+    (
+        Sales[Sale Price] * (1 - Sales[Discount %])
+        - RELATED(PriceList[Purchase Price])
+    ) * Sales[Quantity]
+)
+
+-- Profit Margin %
+Profit Margin % = 
+DIVIDE(
+    [Gross Profit],
+    [Total Revenue],
+    0
+)
+
+-- Total Purchase Cost
+Total Cost = 
+SUMX(
+    Sales,
+    RELATED(PriceList[Purchase Price]) * Sales[Quantity]
+)
+
+
+-- ─────────────────────────────────────────
+-- 3. VOLUME & TRANSACTION MEASURES
+-- ─────────────────────────────────────────
+
+-- Total Units Sold
+Total Units Sold = 
+SUM(Sales[Quantity])
+
+-- Number of Transactions
+Transaction Count = 
+COUNTROWS(Sales)
+
+-- Average Units per Transaction
+Avg Units per Transaction = 
+DIVIDE([Total Units Sold], [Transaction Count], 0)
+
+
+-- ─────────────────────────────────────────
+-- 4. DISCOUNT MEASURES
+-- ─────────────────────────────────────────
+
+-- Average Discount Rate
+Avg Discount % = 
+AVERAGE(Sales[Discount %])
+
+-- Max Discount Applied
+Max Discount % = 
+MAX(Sales[Discount %])
+
+-- Count of High-Discount Transactions (>= 18%)
+High Discount Transactions = 
+CALCULATE(
+    COUNTROWS(Sales),
+    Sales[Discount %] >= 0.18
+)
+
+
+-- ─────────────────────────────────────────
+-- 5. EMPLOYEE PERFORMANCE MEASURES
+-- ─────────────────────────────────────────
+
+-- Revenue per Employee
+Revenue per Employee = 
+DIVIDE(
+    [Total Revenue],
+    DISTINCTCOUNT(Sales[Employee ID]),
+    0
+)
+
+-- Units per Employee
+Units per Employee = 
+DIVIDE(
+    [Total Units Sold],
+    DISTINCTCOUNT(Sales[Employee ID]),
+    0
+)
+
+
+-- ─────────────────────────────────────────
+-- 6. STORE & REGIONAL MEASURES
+-- ─────────────────────────────────────────
+
+-- Revenue by Region (used in slicer context)
+-- Note: Use with Region slicer or Region filter on visuals
+Regional Revenue = 
+CALCULATE(
+    [Total Revenue],
+    ALLEXCEPT(Sales, Location[Region])
+)
+
+-- Store Count
+Store Count = 
+DISTINCTCOUNT(Sales[Store ID])
+
+
+-- ─────────────────────────────────────────
+-- 7. TIME-INDEPENDENT RANKING
+-- ─────────────────────────────────────────
+
+-- Rank categories by Total Revenue
+Category Revenue Rank = 
+RANKX(
+    ALL(Sales[Category]),
+    [Total Revenue],
+    ,
+    DESC,
+    DENSE
+)
+
+-- Rank employees by Total Revenue
+Employee Revenue Rank = 
+RANKX(
+    ALL(Sales[Employee ID]),
+    [Total Revenue],
+    ,
+    DESC,
+    DENSE
+)
